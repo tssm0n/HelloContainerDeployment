@@ -56,11 +56,11 @@ Resources:
     Properties:
       ContainerDefinitions:
       - Name: simple-app
-        Cpu: '10'
+        Cpu: '512'
         Essential: 'true'
         Image:
           Ref: ContainerImage 
-        Memory: '300'
+        Memory: '512'
         PortMappings:
         - HostPort: 5000 
           ContainerPort: 5000
@@ -77,7 +77,7 @@ Resources:
         Target: HTTP:5000/
         HealthyThreshold: '2'
         UnhealthyThreshold: '10'
-        Interval: '30'
+        Interval: '10'
         Timeout: '5'
       SecurityGroups:
       - Ref: ECSElbSecurityGroup 
