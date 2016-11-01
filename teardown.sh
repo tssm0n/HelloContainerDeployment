@@ -1,8 +1,8 @@
 #!/bin/bash
 
-stackname="ecs-test5"
+stackname="hello-ecs"
 
-aws --profile gawd --region us-east-1 cloudformation delete-stack --stack-name ${stackname}
+aws "$@" cloudformation delete-stack --stack-name ${stackname}
 
-status=`aws --profile gawd --region us-east-1 cloudformation describe-stacks --stack-name ${stackname} --query 'Stacks[0].StackStatus'`
+status=`aws "$@" cloudformation describe-stacks --stack-name ${stackname} --query 'Stacks[0].StackStatus'`
 echo $status

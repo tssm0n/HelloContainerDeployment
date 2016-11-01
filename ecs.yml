@@ -15,7 +15,7 @@ Parameters:
     Description: Number of instances to launch in your ECS cluster.
   MaxSize:
     Type: Number
-    Default: '1'
+    Default: '5'
     Description: Maximum number of instances that can be launched in your ECS cluster.
   InstanceType:
     Description: The EC2 instance type
@@ -174,6 +174,56 @@ Resources:
         Ref: ECSServiceRole
       TaskDefinition:
         Ref: taskdefinition
+  ScaleUpPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName:
+        Ref: ECSAutoScalingGroup 
+      Cooldown: '1'
+      ScalingAdjustment: '1'
+  CPUAlarmHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      EvaluationPeriods: '1'
+      Statistic: Average
+      Threshold: '80'
+      AlarmDescription: Alarm if CPU is too high
+      Period: '60'
+      AlarmActions:
+      - Ref: ScaleUpPolicy
+      Namespace: AWS/EC2
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value:
+          Ref: ECSAutoScalingGroup 
+      ComparisonOperator: GreaterThanThreshold
+      MetricName: CPUUtilization
+  ScaleDownPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName:
+        Ref: ECSAutoScalingGroup
+      Cooldown: '1'
+      ScalingAdjustment: '-1'
+  CPUAlarmLow:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      EvaluationPeriods: '1'
+      Statistic: Average
+      Threshold: '10'
+      AlarmDescription: Alarm if CPU is too low 
+      Period: '120'
+      AlarmActions:
+      - Ref: ScaleDownPolicy
+      Namespace: AWS/EC2
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value:
+          Ref: ECSAutoScalingGroup
+      ComparisonOperator: LessThanThreshold
+      MetricName: CPUUtilization
   ECSServiceRole:
     Type: AWS::IAM::Role
     Properties:
